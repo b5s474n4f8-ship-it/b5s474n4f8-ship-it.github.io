@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="归流图标">
+  <rect width="1024" height="1024" rx="224" fill="#F7F6F2"/>
+  <path d="M190 324C318 324 390 394 468 512" fill="none" stroke="#1F2423" stroke-width="54" stroke-linecap="round"/>
+  <path d="M186 512H468" fill="none" stroke="#3D7B72" stroke-width="54" stroke-linecap="round"/>
+  <path d="M190 700C318 700 390 630 468 512" fill="none" stroke="#1F2423" stroke-width="54" stroke-linecap="round"/>
+  <rect x="468" y="420" width="164" height="184" rx="54" fill="#3D7B72"/>
+  <circle cx="612" cy="512" r="28" fill="#F7F6F2"/>
+  <path d="M636 512H828" fill="none" stroke="#1F2423" stroke-width="54" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,11 @@
+{
+  "name": "guiliu",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "note": "Dependency-free PWA. Open index.html directly or serve this folder as a static site."
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
