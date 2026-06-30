@@ -1,78 +1,57 @@
-# 归流
+﻿# 归流
 
-一个本地优先的个人内容主页。它接收你主动分享或粘贴进来的视频、文章、笔记和帖子，用你的评价沉淀 taste，并用温和提醒避免再次滑进平台信息流。
+一个脱离平台默认算法的视频主页。电脑端用 Chrome/Edge 插件从你已经打开的 YouTube/B站页面采集可见视频卡片；手机和电脑端打开 PWA 后看到同一个视频网格，并通过每一次“感兴趣 / 不感兴趣”重新排序。
 
-## 运行
+## 现在的体验
 
-直接打开 `index.html` 即可试用。要测试 PWA、分享入口和离线缓存，建议用任意静态服务器或部署到 Netlify。
+- 首页是 YouTube 式视频网格，不再是空白收件箱。
+- 分类：全部、订阅、平台推荐、稍后看、已隐藏。
+- 内容来源：桌面插件采集 YouTube/B站订阅页、首页推荐页、频道/UP 主页当前可见视频。
+- 每张卡片都有：封面、标题、频道、平台、来源、时长、播放量/发布时间、推荐原因、反馈按钮。
+- 点“不感兴趣”会选择原因：低价值、太长、情绪消耗、不喜欢主题、不喜欢频道、标题党、重复内容。
+- 手机端只负责观看和反馈；电脑插件负责采集。
+- 保留 PWA 安装、每日使用时长、20/45/75 分钟温和提醒。
 
-## 已实现
+## GitHub Pages 部署
 
-- 推荐主页、待评价、Taste 画像三段界面
-- YouTube/B站视频内嵌播放，其他平台干净跳转
-- 手机分享入口：PWA `share_target`
-- 粘贴链接收集内容
-- 感兴趣、不感兴趣、稍后看
-- 每日总使用时长、推荐页时长、播放页时长
-- 连续 20 分钟、每日 45 分钟、每日 75 分钟温和提醒
-- 本地 JSON 导入/导出
-- 可选 Supabase 邮箱魔法链接登录与自动同步
-- 可选 OpenAI 分析函数
-- 1024、512、192、Apple touch icon 图标资产
+把整个 `guiliu` 文件夹内容放进 GitHub 仓库根目录，开启 Settings → Pages → Deploy from branch。iPhone 用 Safari 打开 GitHub Pages 地址，再添加到主屏幕。
 
-## Supabase 同步
+## Supabase 同步与采集
 
-在 `config.js` 填入：
+1. 新建 Supabase 项目。
+2. 在 SQL Editor 执行 `supabase-video.sql`。
+3. 在 `config.js` 填入：
 
 ```js
 window.GUILIU_CONFIG = {
-  supabaseUrl: "https://YOUR_PROJECT.supabase.co",
-  supabaseAnonKey: "YOUR_SUPABASE_ANON_KEY",
+  supabaseUrl: "https://你的项目.supabase.co",
+  supabaseAnonKey: "你的 anon/publishable key",
   aiAccessCode: "",
 };
 ```
 
-在 Supabase SQL editor 执行：
+4. 重新部署 PWA。
+5. 在 Supabase Authentication → URL Configuration 中，把 Site URL 和 Redirect URLs 设置为你的 PWA 地址。
+6. 打开归流，在“采集与同步”里用邮箱登录。
+7. 登录后点击“生成插件采集码”。这个码给 Chrome/Edge 插件使用。
 
-```sql
-create table if not exists public.guiliu_states (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  state jsonb not null default '{}'::jsonb,
-  updated_at timestamptz not null default now()
-);
+## 安装 Chrome/Edge 插件
 
-alter table public.guiliu_states enable row level security;
+1. 打开 Chrome/Edge 扩展管理页。
+2. 开启开发者模式。
+3. 选择“加载已解压的扩展程序”。
+4. 选择 `guiliu/extension` 文件夹。
+5. 打开插件弹窗，填入 Supabase URL、anon key、归流采集码并保存。
 
-create policy "Users can read own guiliu state"
-on public.guiliu_states
-for select
-using (auth.uid() = user_id);
+## 采集视频
 
-create policy "Users can insert own guiliu state"
-on public.guiliu_states
-for insert
-with check (auth.uid() = user_id);
+1. 在电脑浏览器打开 YouTube 订阅页、YouTube 首页、B站首页、B站动态/关注页或 UP 主空间。
+2. 先滚动一下，让视频卡片加载出来。
+3. 点浏览器工具栏里的“归流采集器”。
+4. 点“采集当前页面”。
+5. 回到手机或电脑上的归流，点同步/刷新，就能看到新视频。
 
-create policy "Users can update own guiliu state"
-on public.guiliu_states
-for update
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
-```
-
-然后在 app 的 Taste 画像页输入邮箱，点击发送登录链接。iPhone 和 PC 使用同一个邮箱登录后，会同步内容、评价、画像和使用时长。使用时长按设备分桶合并，避免重复叠加。
-
-## AI 分析
-
-部署到 Netlify 后，在环境变量中配置：
-
-```text
-OPENAI_API_KEY=你的 key
-APP_ACCESS_CODE=自定义访问码
-OPENAI_MODEL=gpt-5.5
-```
-
-`APP_ACCESS_CODE` 可在 `config.js` 或 app 设置里填入。未配置 OpenAI 时，前端会使用本地规则整理，不影响基础使用。
+插件只读取页面上已经可见的视频卡片，不读取 cookie、私信、评论或账号资料。
 
 ## 文件结构
 
@@ -84,14 +63,18 @@ guiliu/
   config.js
   manifest.webmanifest
   sw.js
-  icon.svg
-  icon-1024.png
-  icon-512.png
-  icon-192.png
-  apple-touch-icon.png
-  netlify/functions/analyze.js
+  supabase-video.sql
+  extension/
+    manifest.json
+    popup.html
+    popup.css
+    popup.js
+    content.js
 ```
 
-## 备注
+## 注意
 
-小红书、微博、豆瓣第一版以链接卡片和手写摘要为主，不绕过平台限制抓取私有内容。YouTube 使用官方 iframe 形式，B站使用外链播放器并保留原链接兜底。
+- YouTube 没有公开“我的首页推荐”API；归流通过插件采集你页面上已经看到的推荐卡片。
+- B站第一版同样走可见页面采集，不使用后台 cookie 抓取。
+- GitHub Pages 可以部署前端和插件文件，但插件写入同步需要 Supabase。
+- 如果手机没有立刻更新新界面，关闭主屏幕 PWA 后重新打开，或在 Safari 里访问一次最新地址。
