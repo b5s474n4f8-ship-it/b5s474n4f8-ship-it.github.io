@@ -87,6 +87,7 @@ img { display: block; max-width: 100%; }
 .form.inline { grid-template-columns: minmax(0, 1fr) auto; }
 .auth-form { padding-top: 4px; }
 .auth-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.recovery-link { justify-self: start; padding: 4px 0; }
 .account-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: #fffefa; }
 .account-row div { min-width: 0; display: grid; gap: 2px; }
 .account-row span { color: var(--muted); font-size: 12px; }

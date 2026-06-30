@@ -20,6 +20,7 @@
   function init() {
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
     bind();
+    handleRecoveryHash();
 
     render();
     setInterval(tick, 1000);
@@ -54,6 +55,7 @@
     if (action === "sync") { syncNow("manual"); return; }
     if (action === "token") { createToken(); return; }
     if (action === "logout") { logout(); return; }
+    if (action === "recover") { sendRecovery(clean(document.querySelector('[data-form="login"] [name="email"]')?.value)); return; }
     if (action === "copy-token") { copyText(ui.token || state.settings.lastToken || ""); return; }
     if (action === "export") { exportData(); return; }
     if (action === "import") { document.querySelector("[data-import-file]")?.click(); return; }
@@ -163,7 +165,7 @@
     const signed = Boolean(session?.accessToken);
     const account = signed
       ? `<div class="account-row"><div><span>当前账号</span><strong>${esc(session.user?.email || "已登录")}</strong></div><button class="button" data-action="logout">退出</button></div><form class="form inline" data-form="password"><input name="password" placeholder="设置或修改密码" type="password" autocomplete="new-password" minlength="6" required /><button class="button" type="submit">保存密码</button></form>`
-      : `<form class="form auth-form" data-form="login"><input name="email" placeholder="邮箱" type="email" autocomplete="email" required /><input name="password" placeholder="密码（至少 6 位）" type="password" autocomplete="current-password" minlength="6" required /><div class="auth-actions"><button class="button primary" data-auth-mode="login" type="submit">登录</button><button class="button" data-auth-mode="signup" type="submit">注册账号</button></div></form>`;
+      : `<form class="form auth-form" data-form="login"><input name="email" placeholder="邮箱" type="email" autocomplete="email" required /><input name="password" placeholder="密码（至少 6 位）" type="password" autocomplete="current-password" minlength="6" required /><div class="auth-actions"><button class="button primary" data-auth-mode="login" type="submit">登录</button><button class="button" data-auth-mode="signup" type="submit">注册账号</button></div><button class="text-button recovery-link" data-action="recover" type="button">已有账号但没有密码</button></form>`;
     return `<section class="panel setup"><div class="panel-title"><h2>采集与同步</h2><span>${esc(ui.sync || (signed ? "已登录" : ready ? "待登录" : "本地模式"))}</span></div><p class="muted">插件只采集当前页面上可见的视频卡片，不读取 cookie、私信、评论或账号资料。</p><form class="form" data-form="settings"><input name="supabaseUrl" value="${esc(state.settings.supabaseUrl)}" placeholder="Supabase URL" /><input name="supabaseAnonKey" value="${esc(state.settings.supabaseAnonKey)}" placeholder="Supabase anon / publishable key" type="password" /><button class="button" type="submit">保存</button></form>${account}<div class="token-box"><button class="button" data-action="token">生成插件采集码</button>${(ui.token || state.settings.lastToken) ? `<code>${esc(ui.token || state.settings.lastToken)}</code><button class="button" data-action="copy-token">复制</button>` : ""}</div><div class="button-row"><button class="text-button" data-action="sync">立即同步</button><button class="text-button" data-action="export">导出备份</button></div></section>`;
   }
 
@@ -278,6 +280,30 @@
     state.candidates = [...map.values()].sort((a, b) => new Date(b.capturedAt) - new Date(a.capturedAt));
   }
 
+  function handleRecoveryHash() {
+    if (!location.hash) return;
+    const hash = new URLSearchParams(location.hash.slice(1));
+    if (hash.get("type") !== "recovery") return;
+    if (hash.get("error")) {
+      toast("密码恢复链接无效或已过期");
+      history.replaceState(null, "", location.pathname + location.search);
+      return;
+    }
+    if (hash.get("access_token") && hash.get("refresh_token")) {
+      session = {
+        accessToken: hash.get("access_token"),
+        refreshToken: hash.get("refresh_token"),
+        expiresAt: Number(hash.get("expires_at") || 0),
+        user: null,
+        savedAt: now(),
+      };
+      saveSession();
+      ui.sync = "请设置新密码";
+      toast("身份已验证，请在右侧保存新密码");
+    }
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+
   function config() {
     const supabaseUrl = (state.settings.supabaseUrl || CONFIG.supabaseUrl || "").replace(/\/(rest\/v1)?\/?$/, "");
     const supabaseAnonKey = state.settings.supabaseAnonKey || CONFIG.supabaseAnonKey || "";
@@ -285,6 +311,24 @@
   }
 
   function queueSync() { if (config().ready && session?.accessToken) { clearTimeout(runtime.syncTimer); runtime.syncTimer = setTimeout(() => syncNow("auto"), 1800); } }
+
+  async function sendRecovery(email) {
+    const cfg = config();
+    if (!email) return toast("请先输入邮箱");
+    if (!cfg.ready) return toast("先保存 Supabase 设置");
+    try {
+      const redirect = encodeURIComponent(location.href.split("#")[0]);
+      const res = await fetch(`${cfg.supabaseUrl}/auth/v1/recover?redirect_to=${redirect}`, {
+        method: "POST",
+        headers: { apikey: cfg.supabaseAnonKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(authError(data));
+      toast("密码恢复邮件已发送，请打开邮件中的链接");
+    } catch (error) { toast(error instanceof Error ? error.message : "恢复邮件发送失败"); }
+    render();
+  }
 
   async function authenticate(email, password, mode) {
     const cfg = config();

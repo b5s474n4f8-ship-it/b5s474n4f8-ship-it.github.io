@@ -1,4 +1,4 @@
-const CACHE_NAME = "guiliu-video-v3-20260630";
+const CACHE_NAME = "guiliu-video-v4-20260630";
 const ASSETS = [
   "./",
   "./index.html",
