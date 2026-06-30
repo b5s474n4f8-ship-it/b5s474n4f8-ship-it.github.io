@@ -1,0 +1,40 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>归流采集器</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <img src="icon-48.png" alt="" />
+      <div>
+        <h1>归流采集器</h1>
+        <p>采集当前页面可见视频</p>
+      </div>
+    </header>
+
+    <main>
+      <label>
+        <span>Supabase URL</span>
+        <input id="supabaseUrl" placeholder="https://xxx.supabase.co" />
+      </label>
+      <label>
+        <span>Anon / publishable key</span>
+        <input id="supabaseAnonKey" type="password" placeholder="eyJ..." />
+      </label>
+      <label>
+        <span>归流采集码</span>
+        <input id="ingestToken" type="password" placeholder="gl_..." />
+      </label>
+
+      <div class="row">
+        <button id="save">保存</button>
+        <button id="collect" class="primary">采集当前页面</button>
+      </div>
+      <p id="status" class="status">先在归流里生成采集码。</p>
+    </main>
+  </body>
+  <script src="popup.js"></script>
+</html>

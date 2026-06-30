@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "归流采集器",
+  "version": "0.2.0",
+  "description": "把 YouTube/B站当前页面可见视频采集到归流。",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": [
+    "https://*.youtube.com/*",
+    "https://youtu.be/*",
+    "https://*.bilibili.com/*",
+    "https://b23.tv/*",
+    "https://*.supabase.co/*"
+  ],
+  "action": {
+    "default_title": "归流采集器",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.youtube.com/*", "https://youtu.be/*", "https://*.bilibili.com/*", "https://b23.tv/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  }
+}
