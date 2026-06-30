@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   color-scheme: light;
   --bg: #f7f6f2;
   --paper: #fffefa;
@@ -85,6 +85,12 @@ img { display: block; max-width: 100%; }
 .panel-title span, .muted { color: var(--muted); font-size: 12px; line-height: 1.5; }
 .form { display: grid; gap: 8px; }
 .form.inline { grid-template-columns: minmax(0, 1fr) auto; }
+.auth-form { padding-top: 4px; }
+.auth-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.account-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: #fffefa; }
+.account-row div { min-width: 0; display: grid; gap: 2px; }
+.account-row span { color: var(--muted); font-size: 12px; }
+.account-row strong { overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
 .form input, .form textarea { width: 100%; min-height: 38px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: #fffefa; color: var(--ink); outline: 0; }
 .form textarea { min-height: 76px; resize: vertical; }
 .form input:focus, .form textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(61,123,114,.12); }

@@ -1,4 +1,4 @@
-﻿# 归流
+# 归流
 
 一个脱离平台默认算法的视频主页。电脑端用 Chrome/Edge 插件从你已经打开的 YouTube/B站页面采集可见视频卡片；手机和电脑端打开 PWA 后看到同一个视频网格，并通过每一次“感兴趣 / 不感兴趣”重新排序。
 
@@ -31,8 +31,8 @@ window.GUILIU_CONFIG = {
 ```
 
 4. 重新部署 PWA。
-5. 在 Supabase Authentication → URL Configuration 中，把 Site URL 和 Redirect URLs 设置为你的 PWA 地址。
-6. 打开归流，在“采集与同步”里用邮箱登录。
+5. 在 Supabase Authentication → Providers → Email 中启用邮箱密码登录，并关闭 `Confirm email`。这样注册后会直接登录，不发送确认链接。
+6. 打开归流，在“采集与同步”里输入邮箱和密码。已有账号点“登录”，首次使用点“注册账号”。
 7. 登录后点击“生成插件采集码”。这个码给 Chrome/Edge 插件使用。
 
 ## 安装 Chrome/Edge 插件
