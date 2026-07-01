@@ -1,10 +1,10 @@
-const CACHE_NAME = "guiliu-video-v4-20260630";
+const CACHE_NAME = "guiliu-video-v5-20260701";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css",
-  "./app.js",
-  "./config.js",
+  "./styles.css?v=5",
+  "./app.js?v=5",
+  "./config.js?v=5",
   "./manifest.webmanifest",
   "./icon.svg",
   "./icon-192.png",
